@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Volvoaktier">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>Mina Volvoaktier</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0f0f1a;
+            --card: #1a1a2e;
+            --card-border: #2a2a4a;
+            --text: #e8e8f0;
+            --text-muted: #8888aa;
+            --accent: #4a6cf7;
+            --green: #00c853;
+            --red: #ff1744;
+            --volvo-blue: #003057;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .header {
+            text-align: center;
+            padding: 24px 0 8px;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header .subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, var(--volvo-blue), #004a87);
+            border-radius: 20px;
+            padding: 24px;
+            margin: 16px 0;
+            text-align: center;
+        }
+
+        .summary-label {
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .summary-value {
+            font-size: 42px;
+            font-weight: 800;
+            margin: 8px 0 4px;
+            letter-spacing: -1px;
+        }
+
+        .summary-total {
+            font-size: 15px;
+            color: rgba(255,255,255,0.8);
+            margin-top: 8px;
+        }
+
+        .summary-total span {
+            font-weight: 600;
+        }
+
+        .positive { color: var(--green); }
+        .negative { color: var(--red); }
+
+        .stock-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .stock-card {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 16px 20px;
+        }
+
+        .stock-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .stock-name {
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .stock-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: rgba(74, 108, 247, 0.15);
+            color: var(--accent);
+        }
+
+        .stock-price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 8px;
+        }
+
+        .stock-price {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .stock-change {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .stock-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--text-muted);
+            padding-top: 8px;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .stock-detail-value {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .input-section {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px 0;
+        }
+
+        .input-section h2 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .input-wrapper {
+            flex: 1;
+        }
+
+        .input-wrapper label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .input-wrapper input:focus {
+            border-color: var(--accent);
+        }
+
+        .input-wrapper input::placeholder {
+            color: #555;
+        }
+
+        .section-divider {
+            border: none;
+            border-top: 1px solid var(--card-border);
+            margin: 16px 0;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 4px;
+            transition: opacity 0.2s;
+        }
+
+        .btn:active { opacity: 0.7; }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .last-updated {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            padding: 8px 0 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Mina Volvoaktier</h1>
+        <p class="subtitle">Portföljöversikt — Volvo Group</p>
+    </div>
+
+    <div id="app">
+        <div class="input-section">
+            <h2>Mitt innehav</h2>
+            <div class="input-row">
+                <div class="input-wrapper">
+                    <label>Volvo A (antal)</label>
+                    <input type="number" id="countA" inputmode="numeric" pattern="[0-9]*" placeholder="0">
+                </div>
+                <div class="input-wrapper">
+                    <label>Volvo B (antal)</label>
+                    <input type="number" id="countB" inputmode="numeric" pattern="[0-9]*" placeholder="0">
+                </div>
+            </div>
+
+            <hr class="section-divider">
+            <h2>Dagens kurser</h2>
+
+            <div class="input-row">
+                <div class="input-wrapper">
+                    <label>Kurs A (kr)</label>
+                    <input type="number" id="priceA" inputmode="decimal" step="0.01" placeholder="t.ex. 310.50">
+                </div>
+                <div class="input-wrapper">
+                    <label>Förändring A (%)</label>
+                    <input type="number" id="changeA" inputmode="decimal" step="0.01" placeholder="t.ex. -1.2">
+                </div>
+            </div>
+            <div class="input-row">
+                <div class="input-wrapper">
+                    <label>Kurs B (kr)</label>
+                    <input type="number" id="priceB" inputmode="decimal" step="0.01" placeholder="t.ex. 308.60">
+                </div>
+                <div class="input-wrapper">
+                    <label>Förändring B (%)</label>
+                    <input type="number" id="changeB" inputmode="decimal" step="0.01" placeholder="t.ex. -1.2">
+                </div>
+            </div>
+
+            <button class="btn btn-primary" id="calcBtn">Beräkna</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const FIELDS = ['countA', 'countB', 'priceA', 'priceB', 'changeA', 'changeB'];
+
+        function loadSaved() {
+            FIELDS.forEach(id => {
+                const val = localStorage.getItem('volvo_' + id);
+                if (val) document.getElementById(id).value = val;
+            });
+        }
+
+        function saveAll() {
+            FIELDS.forEach(id => {
+                localStorage.setItem('volvo_' + id, document.getElementById(id).value || '');
+            });
+        }
+
+        function getVal(id) {
+            return parseFloat(document.getElementById(id).value) || 0;
+        }
+
+        function formatNum(n, decimals = 2) {
+            return n.toLocaleString('sv-SE', {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        }
+
+        function calculate() {
+            saveAll();
+
+            const countA = getVal('countA');
+            const countB = getVal('countB');
+            const priceA = getVal('priceA');
+            const priceB = getVal('priceB');
+            const changePctA = getVal('changeA');
+            const changePctB = getVal('changeB');
+
+            const resultsDiv = document.getElementById('results');
+
+            if ((countA === 0 && countB === 0) || (priceA === 0 && priceB === 0)) {
+                resultsDiv.innerHTML = '';
+                return;
+            }
+
+            // Calculate previous close from current price and change %
+            const prevCloseA = priceA > 0 ? priceA / (1 + changePctA / 100) : 0;
+            const prevCloseB = priceB > 0 ? priceB / (1 + changePctB / 100) : 0;
+
+            const valueA = priceA * countA;
+            const valueB = priceB * countB;
+            const totalValue = valueA + valueB;
+
+            const dayChangeA = (priceA - prevCloseA) * countA;
+            const dayChangeB = (priceB - prevCloseB) * countB;
+            const totalDayChange = dayChangeA + dayChangeB;
+
+            const totalPrevValue = prevCloseA * countA + prevCloseB * countB;
+            const totalDayChangePct = totalPrevValue > 0 ? (totalDayChange / totalPrevValue) * 100 : 0;
+
+            const changeClass = totalDayChange >= 0 ? 'positive' : 'negative';
+            const sign = totalDayChange >= 0 ? '+' : '';
+
+            let html = `
+                <div class="summary-card">
+                    <div class="summary-label">Dagens resultat</div>
+                    <div class="summary-value ${changeClass}">
+                        ${sign}${formatNum(totalDayChange)} kr
+                    </div>
+                    <div class="summary-total">
+                        ${sign}${formatNum(totalDayChangePct)}% idag
+                    </div>
+                    <div class="summary-total" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.15);">
+                        Totalt värde: <span>${formatNum(totalValue, 0)} kr</span>
+                    </div>
+                </div>
+                <div class="stock-cards">`;
+
+            if (countA > 0 && priceA > 0) {
+                const chgA = priceA - prevCloseA;
+                const chgClass = chgA >= 0 ? 'positive' : 'negative';
+                const s = chgA >= 0 ? '+' : '';
+                html += `
+                    <div class="stock-card">
+                        <div class="stock-card-header">
+                            <span class="stock-name">Volvo Group A</span>
+                            <span class="stock-badge">${countA} st</span>
+                        </div>
+                        <div class="stock-price-row">
+                            <span class="stock-price">${formatNum(priceA)} kr</span>
+                            <span class="stock-change ${chgClass}">${s}${formatNum(changePctA)}%</span>
+                        </div>
+                        <div class="stock-details">
+                            <div>Värde: <span class="stock-detail-value">${formatNum(valueA, 0)} kr</span></div>
+                            <div>Idag: <span class="stock-detail-value ${chgClass}">${s}${formatNum(dayChangeA)} kr</span></div>
+                        </div>
+                    </div>`;
+            }
+
+            if (countB > 0 && priceB > 0) {
+                const chgB = priceB - prevCloseB;
+                const chgClass = chgB >= 0 ? 'positive' : 'negative';
+                const s = chgB >= 0 ? '+' : '';
+                html += `
+                    <div class="stock-card">
+                        <div class="stock-card-header">
+                            <span class="stock-name">Volvo Group B</span>
+                            <span class="stock-badge">${countB} st</span>
+                        </div>
+                        <div class="stock-price-row">
+                            <span class="stock-price">${formatNum(priceB)} kr</span>
+                            <span class="stock-change ${chgClass}">${s}${formatNum(changePctB)}%</span>
+                        </div>
+                        <div class="stock-details">
+                            <div>Värde: <span class="stock-detail-value">${formatNum(valueB, 0)} kr</span></div>
+                            <div>Idag: <span class="stock-detail-value ${chgClass}">${s}${formatNum(dayChangeB)} kr</span></div>
+                        </div>
+                    </div>`;
+            }
+
+            html += `</div>`;
+            resultsDiv.innerHTML = html;
+        }
+
+        // Init
+        loadSaved();
+        document.getElementById('calcBtn').addEventListener('click', calculate);
+
+        // Auto-calculate if saved values exist
+        if (getVal('countA') > 0 || getVal('countB') > 0) {
+            calculate();
+        }
+    </script>
+</body>
+</html>
