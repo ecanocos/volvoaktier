@@ -239,10 +239,15 @@
             display: flex;
             gap: 8px;
             align-items: flex-end;
+            flex: 1;
         }
 
         .change-field .input-wrapper {
             flex: 1;
+        }
+
+        .input-section h2 + .input-row {
+            margin-top: 4px;
         }
 
         .sign-toggle {
@@ -299,29 +304,32 @@
             </div>
 
             <hr class="section-divider">
-            <h2>Dagens kurser</h2>
+            <h2>Volvo A</h2>
 
             <div class="input-row">
                 <div class="input-wrapper">
-                    <label>Kurs A (kr)</label>
+                    <label>Kurs (kr)</label>
                     <input type="number" id="priceA" inputmode="decimal" step="0.01" placeholder="t.ex. 310.50">
                 </div>
                 <div class="change-field">
                     <div class="input-wrapper">
-                        <label>Förändring A (%)</label>
+                        <label>Förändring (%)</label>
                         <input type="number" id="changeA" inputmode="decimal" step="0.01" min="0" placeholder="1.2">
                     </div>
                     <button type="button" class="sign-toggle neg" id="signA" data-sign="-1">−</button>
                 </div>
             </div>
+
+            <h2>Volvo B</h2>
+
             <div class="input-row">
                 <div class="input-wrapper">
-                    <label>Kurs B (kr)</label>
+                    <label>Kurs (kr)</label>
                     <input type="number" id="priceB" inputmode="decimal" step="0.01" placeholder="t.ex. 308.60">
                 </div>
                 <div class="change-field">
                     <div class="input-wrapper">
-                        <label>Förändring B (%)</label>
+                        <label>Förändring (%)</label>
                         <input type="number" id="changeB" inputmode="decimal" step="0.01" min="0" placeholder="1.2">
                     </div>
                     <button type="button" class="sign-toggle neg" id="signB" data-sign="-1">−</button>
