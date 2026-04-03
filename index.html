@@ -235,6 +235,41 @@
             color: white;
         }
 
+        .change-field {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .change-field .input-wrapper {
+            flex: 1;
+        }
+
+        .sign-toggle {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
+            background: #f0f0f4;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .sign-toggle:active { opacity: 0.7; }
+
+        .sign-toggle.neg {
+            background: #fde8e8;
+            color: var(--red);
+        }
+
+        .sign-toggle.pos {
+            background: #e8fde8;
+            color: var(--green);
+        }
+
         .last-updated {
             text-align: center;
             font-size: 12px;
@@ -271,9 +306,12 @@
                     <label>Kurs A (kr)</label>
                     <input type="number" id="priceA" inputmode="decimal" step="0.01" placeholder="t.ex. 310.50">
                 </div>
-                <div class="input-wrapper">
-                    <label>Förändring A (%)</label>
-                    <input type="number" id="changeA" inputmode="decimal" step="0.01" placeholder="t.ex. -1.2">
+                <div class="change-field">
+                    <div class="input-wrapper">
+                        <label>Förändring A (%)</label>
+                        <input type="number" id="changeA" inputmode="decimal" step="0.01" min="0" placeholder="1.2">
+                    </div>
+                    <button type="button" class="sign-toggle neg" id="signA" data-sign="-1">−</button>
                 </div>
             </div>
             <div class="input-row">
@@ -281,9 +319,12 @@
                     <label>Kurs B (kr)</label>
                     <input type="number" id="priceB" inputmode="decimal" step="0.01" placeholder="t.ex. 308.60">
                 </div>
-                <div class="input-wrapper">
-                    <label>Förändring B (%)</label>
-                    <input type="number" id="changeB" inputmode="decimal" step="0.01" placeholder="t.ex. -1.2">
+                <div class="change-field">
+                    <div class="input-wrapper">
+                        <label>Förändring B (%)</label>
+                        <input type="number" id="changeB" inputmode="decimal" step="0.01" min="0" placeholder="1.2">
+                    </div>
+                    <button type="button" class="sign-toggle neg" id="signB" data-sign="-1">−</button>
                 </div>
             </div>
 
@@ -296,21 +337,58 @@
     <script>
         const FIELDS = ['countA', 'countB', 'priceA', 'priceB', 'changeA', 'changeB'];
 
+        function setupSignToggle(btnId) {
+            const btn = document.getElementById(btnId);
+            btn.addEventListener('click', () => {
+                const sign = parseInt(btn.dataset.sign);
+                const newSign = sign * -1;
+                btn.dataset.sign = newSign;
+                btn.textContent = newSign === -1 ? '−' : '+';
+                btn.className = 'sign-toggle ' + (newSign === -1 ? 'neg' : 'pos');
+            });
+        }
+
         function loadSaved() {
             FIELDS.forEach(id => {
                 const val = localStorage.getItem('volvo_' + id);
-                if (val) document.getElementById(id).value = val;
+                if (val) document.getElementById(id).value = Math.abs(parseFloat(val)) || '';
+            });
+            // Restore signs
+            ['A', 'B'].forEach(s => {
+                const saved = parseFloat(localStorage.getItem('volvo_change' + s)) || 0;
+                const btn = document.getElementById('sign' + s);
+                if (saved >= 0) {
+                    btn.dataset.sign = '1';
+                    btn.textContent = '+';
+                    btn.className = 'sign-toggle pos';
+                } else {
+                    btn.dataset.sign = '-1';
+                    btn.textContent = '−';
+                    btn.className = 'sign-toggle neg';
+                }
             });
         }
 
         function saveAll() {
-            FIELDS.forEach(id => {
+            ['countA', 'countB', 'priceA', 'priceB'].forEach(id => {
                 localStorage.setItem('volvo_' + id, document.getElementById(id).value || '');
+            });
+            // Save change with sign applied
+            ['A', 'B'].forEach(s => {
+                const val = parseFloat(document.getElementById('change' + s).value) || 0;
+                const sign = parseInt(document.getElementById('sign' + s).dataset.sign);
+                localStorage.setItem('volvo_change' + s, (val * sign).toString());
             });
         }
 
         function getVal(id) {
             return parseFloat(document.getElementById(id).value) || 0;
+        }
+
+        function getSignedChange(suffix) {
+            const val = parseFloat(document.getElementById('change' + suffix).value) || 0;
+            const sign = parseInt(document.getElementById('sign' + suffix).dataset.sign);
+            return val * sign;
         }
 
         function formatNum(n, decimals = 2) {
@@ -327,8 +405,8 @@
             const countB = getVal('countB');
             const priceA = getVal('priceA');
             const priceB = getVal('priceB');
-            const changePctA = getVal('changeA');
-            const changePctB = getVal('changeB');
+            const changePctA = getSignedChange('A');
+            const changePctB = getSignedChange('B');
 
             const resultsDiv = document.getElementById('results');
 
@@ -417,6 +495,8 @@
         }
 
         // Init
+        setupSignToggle('signA');
+        setupSignToggle('signB');
         loadSaved();
         document.getElementById('calcBtn').addEventListener('click', calculate);
 
